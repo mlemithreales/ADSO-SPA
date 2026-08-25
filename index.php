@@ -1,23 +1,6 @@
 <?php
 $empleados = [];
-$empleados_prueba = [
-    [
-        "nombre" => "Juan Camilo",
-        "especialidad" => "Limpieza facial,Pedicure",
-    ],
-    [
-        "nombre" => "Meisil",
-        "especialidad" => "Masajerelajante,Manicure",
-    ],
-    [
-        "nombre" => "Carolina",
-        "especialidad" => "Exfoliación corporal,Masajedescontracturante",
-    ],
-    [
-        "nombre" => "Evelyn",
-        "especialidad" => "Tratamiento antiedad",
-    ]
-];
+$datos_prueba_cargados = false;
 $servicios = [
     [
         "servicio" => "Limpieza facial",
@@ -107,12 +90,8 @@ function registrar_empleados(array & $empleados): void
         echo "\n";
         echo "=============================\n";
         echo "     REGISTRAR EMPLEADO\n";
-        $nombre_empleado = solicitar_texto(
-            "Ingrese el nombre del empleado: "
-        );
-        $especialidad_empleado = solicitar_texto(
-            "Ingrese la especialidad del empleado: "
-        );
+        $nombre_empleado = solicitar_texto("Ingrese el nombre del empleado: " );
+        $especialidad_empleado = solicitar_texto("Ingrese la especialidad del empleado: ");
         $empleados[] = [
             "nombre" => $nombre_empleado,
             "especialidad" => $especialidad_empleado,
@@ -122,7 +101,6 @@ function registrar_empleados(array & $empleados): void
         do {
             echo "¿Desea registrar otro empleado? (s/n): ";
             $continuar_registro = strtolower(trim(fgets(STDIN)));
-
             if ($continuar_registro !== 's' && $continuar_registro !== 'n') {
                 echo "Error. Responda únicamente s o n.\n";
             }
@@ -157,7 +135,6 @@ function validar_dia(string $dia): bool
         "viernes",
         "sábado",
     ];
-
     return in_array($dia, $dias_validos, true);
 }
 function mostrar_servicios(array $servicios): void
@@ -175,100 +152,62 @@ function validar_hora(string $hora): bool
     $hora = (int) $hora;
     return $hora >= 8 && $hora <= 18;
 }
-
 function registrar_cita(array &$empleados, array $servicios): void
 {
     if (count($empleados) === 0) {
-        echo "No hay empleados registrados.\n";
-        echo "Primero debe registrar un empleado.\n";
+        echo "No hay empleados registrados.\n echo Primero debe registrar un empleado";
         return;
     }
-
     echo "\n";
     echo "========== REGISTRAR CITA ==========\n";
-
     $indice_empleado = mostrar_empleados($empleados);
-
-    $nombre_cliente = solicitar_texto(
-        "Ingrese el nombre del cliente: "
-    );
-
+    $nombre_cliente = solicitar_texto("Ingrese el nombre del cliente: " );
     do {
         echo "Ingrese el dia de la cita: ";
         $dia_cita = strtolower(trim(fgets(STDIN)));
-
         if (!validar_dia($dia_cita)) {
             echo "Error. El dia debe ser de lunes a sabado.\n";
         }
 
     } while (!validar_dia($dia_cita));
 
-
     do {
         echo "Ingrese la hora de inicio (8 - 18): ";
         $hora_cita = trim(fgets(STDIN));
-
         if (!validar_hora($hora_cita)) {
             echo "Error. La hora debe estar entre 8 y 18.\n";
         }
 
     } while (!validar_hora($hora_cita));
 
-
-    // ==========================================
-    // SELECCIONAR SERVICIOS
-    // ==========================================
-
     $servicios_cita = [];
-
     $agregar_servicio = "s";
 
     while ($agregar_servicio === "s") {
 
         echo "\n";
         mostrar_servicios($servicios);
-
         do {
             echo "Seleccione un servicio por número: ";
             $opcion_servicio = trim(fgets(STDIN));
-
-            if (
-                !is_numeric($opcion_servicio) ||
-                (int)$opcion_servicio < 1 ||
-                (int)$opcion_servicio > count($servicios)
-            ) {
+            if ( !is_numeric($opcion_servicio) || (int)$opcion_servicio < 1 ||  (int)$opcion_servicio > count($servicios))  
+            {
                 echo "Error. Seleccione un servicio válido.\n";
             }
 
-        } while (
-            !is_numeric($opcion_servicio) ||
-            (int)$opcion_servicio < 1 ||
-            (int)$opcion_servicio > count($servicios)
-        );
-
+        } while (!is_numeric($opcion_servicio) || (int)$opcion_servicio < 1 || (int)$opcion_servicio > count($servicios) );
 
         $indice_servicio = (int)$opcion_servicio - 1;
-
-        // Guardamos el servicio completo
+        // se guarda el servicio completo con todo
         $servicios_cita[] = $servicios[$indice_servicio];
-
-
         do {
             echo "¿Desea agregar otro servicio? (s/n): ";
             $agregar_servicio = strtolower(trim(fgets(STDIN)));
-
             if ($agregar_servicio !== "s" && $agregar_servicio !== "n") {
                 echo "Error. Responda únicamente s o n.\n";
             }
-
         } while ($agregar_servicio !== "s" && $agregar_servicio !== "n");
     }
-
-
-    // ==========================================
-    // GUARDAR LA CITA
-    // ==========================================
-
     $cita = [
         "cliente" => $nombre_cliente,
         "dia" => $dia_cita,
@@ -278,55 +217,33 @@ function registrar_cita(array &$empleados, array $servicios): void
 
     $empleados[$indice_empleado]["citas"][] = $cita;
 
-
-    // ==========================================
-    // MOSTRAR RESUMEN
-    // ==========================================
-
     echo "\n";
     echo "========== CITA REGISTRADA ==========\n";
-
-    echo "Empleado: "
-        . $empleados[$indice_empleado]["nombre"]
-        . "\n";
-
+    echo "Empleado: " . $empleados[$indice_empleado]["nombre"]. "\n";
     echo "Cliente: " . $nombre_cliente . "\n";
     echo "Día: " . $dia_cita . "\n";
     echo "Hora: " . $hora_cita . "\n";
-
     echo "Servicios:\n";
-
     foreach ($servicios_cita as $servicio) {
 
-        echo "- "
-            . $servicio["servicio"]
-            . " - $"
-            . number_format($servicio["precio"], 0, ',', '.')
-            . " - "
-            . $servicio["duracion"]
-            . " hora(s)\n";
+        echo "- ". $servicio["servicio"]. " - $". number_format($servicio["precio"], 0, ',', '.')
+        . " - ". $servicio["duracion"]. " hora(s)\n";
+     
     }
-
-    echo "=====================================\n";
 }
 function total_facturado_empleados(array $empleados): void
 {
     echo "\n";
     echo "========== TOTAL FACTURADO POR EMPLEADO ==========\n";
-
     if (count($empleados) === 0) {
         echo "No hay empleados registrados.\n";
         return;
     }
-
     $facturacion = [];
-
     foreach ($empleados as $empleado) {
 
         $total = 0;
-
         foreach ($empleado["citas"] as $cita) {
-
             foreach ($cita["servicios"] as $servicio) {
                 $total += $servicio["precio"];
             }
@@ -337,7 +254,6 @@ function total_facturado_empleados(array $empleados): void
             "total" => $total
         ];
     }
-
     for ($i = 0; $i < count($facturacion) - 1; $i++) {
 
         for ($j = $i + 1; $j < count($facturacion); $j++) {
@@ -361,17 +277,9 @@ function total_facturado_empleados(array $empleados): void
     foreach ($facturacion as $empleado) {
 
         echo str_pad($empleado["nombre"], 25);
-
-        echo "$" . number_format(
-            $empleado["total"],
-            0,
-            ',',
-            '.'
-        );
-
+        echo "$" . number_format( $empleado["total"],0,',','.');
         echo "\n";
     }
-
     echo str_repeat("-", 45) . "\n";
 }
 function servicio_mas_solicitado(array $empleados): void
@@ -385,15 +293,10 @@ function servicio_mas_solicitado(array $empleados): void
     }
 
     $servicios_contados = [];
-
     foreach ($empleados as $empleado) {
-
         foreach ($empleado["citas"] as $cita) {
-
             foreach ($cita["servicios"] as $servicio) {
-
                 $nombre = $servicio["servicio"];
-
                 if (isset($servicios_contados[$nombre])) {
 
                     $servicios_contados[$nombre]["cantidad"]++;
@@ -458,13 +361,10 @@ function agenda_de_un_dia(array $empleados): void
 
     $agenda = [];
 
-    // Recorrer los empleados
     foreach ($empleados as $empleado) {
 
-        // Recorrer las citas del empleado
         foreach ($empleado["citas"] as $cita) {
 
-            // Revisar si la cita corresponde al día seleccionado
             if ($cita["dia"] === $dia) {
 
                 $agenda[] = [
@@ -483,8 +383,6 @@ function agenda_de_un_dia(array $empleados): void
         return;
     }
 
-
-    // Ordenar las citas por hora
     for ($i = 0; $i < count($agenda) - 1; $i++) {
 
         for ($j = $i + 1; $j < count($agenda); $j++) {
@@ -498,7 +396,6 @@ function agenda_de_un_dia(array $empleados): void
         }
     }
 
-
     echo "\n";
     echo "AGENDA DEL DÍA: " . strtoupper($dia) . "\n";
     echo str_repeat("=", 70) . "\n";
@@ -510,15 +407,12 @@ function agenda_de_un_dia(array $empleados): void
 
     echo str_repeat("-", 70) . "\n";
 
-
     foreach ($agenda as $cita) {
 
         $nombres_servicios = [];
-
         foreach ($cita["servicios"] as $servicio) {
             $nombres_servicios[] = $servicio["servicio"];
         }
-
         $servicios_texto = implode(", ", $nombres_servicios);
 
         echo str_pad($cita["hora"] . ":00", 10);
@@ -526,20 +420,16 @@ function agenda_de_un_dia(array $empleados): void
         echo str_pad($cita["cliente"], 20);
         echo $servicios_texto . "\n";
     }
-
     echo str_repeat("=", 70) . "\n";
 }
 function obtener_duracion_cita(array $cita): int
 {
     $duracion_total = 0;
-
     foreach ($cita["servicios"] as $servicio) {
 
         $duracion = explode(" ", $servicio["duracion"]);
-
         $duracion_total += (int)$duracion[0];
     }
-
     return $duracion_total;
 }
 function detectar_conflictos(array $empleados): void
@@ -548,17 +438,15 @@ function detectar_conflictos(array $empleados): void
     echo "========== DETECCIÓN DE CONFLICTOS ==========\n";
 
     $hay_conflicto = false;
-
     foreach ($empleados as $empleado) {
 
         $citas = $empleado["citas"];
 
-        // Comparamos cada cita con las demás
         for ($i = 0; $i < count($citas) - 1; $i++) {
 
             for ($j = $i + 1; $j < count($citas); $j++) {
 
-                // Solo se comparan si son el mismo día
+                // Verificar si las citas son del mismo dia
                 if ($citas[$i]["dia"] === $citas[$j]["dia"]) {
 
                     $inicio1 = $citas[$i]["hora"];
@@ -570,7 +458,7 @@ function detectar_conflictos(array $empleados): void
                     $fin2 = $inicio2 + $duracion2;
 
 
-                    // Verificar si las citas se cruzan
+                    // Verificar si hay un conflicto entre las citas del mismo día
                     if ($inicio1 < $fin2 && $inicio2 < $fin1) {
 
                         echo "\n";
@@ -585,8 +473,6 @@ function detectar_conflictos(array $empleados): void
                         echo "\nCita 2:\n";
                         echo "Cliente: " . $citas[$j]["cliente"] . "\n";
                         echo "Hora: " . $inicio2 . ":00 - " . $fin2 . ":00\n";
-
-                        echo "\n";
 
                         $hay_conflicto = true;
                     }
@@ -612,21 +498,19 @@ function liquidacion_comisiones(array $empleados): void
     $liquidacion = [];
     $mayor_facturacion = 0;
 
-    // Recorrer los empleados
     foreach ($empleados as $empleado) {
 
         $total_facturado = 0;
         $cantidad_citas = count($empleado["citas"]);
 
-        // Calcular total facturado
-        foreach ($empleado["citas"] as $cita) {
+        foreach ($empleado["citas"] as $cita) { //total por empleado
 
             foreach ($cita["servicios"] as $servicio) {
                 $total_facturado += $servicio["precio"];
             }
         }
 
-        // Definir porcentaje de comisión
+        
         if ($cantidad_citas >= 6) {
             $porcentaje_comision = 0.12;
         } else {
@@ -649,8 +533,6 @@ function liquidacion_comisiones(array $empleados): void
         }
     }
 
-
-    // Dar el bono al empleado que más facturó
     foreach ($liquidacion as $indice => $empleado) {
 
         if ($empleado["facturado"] === $mayor_facturacion && $mayor_facturacion > 0) {
@@ -667,42 +549,190 @@ function liquidacion_comisiones(array $empleados): void
     echo str_pad("COMISIÓN", 18);
     echo str_pad("BONO", 15);
     echo "TOTAL\n";
-
     echo str_repeat("-", 95) . "\n";
-
 
     foreach ($liquidacion as $empleado) {
 
         $total_pago = $empleado["comision"] + $empleado["bono"];
-
         echo str_pad($empleado["nombre"], 20);
-
-        echo str_pad(
-            $empleado["citas"],
-            10
-        );
-
-        echo str_pad(
-            "$" . number_format($empleado["facturado"], 0, ',', '.'),
-            18
-        );
-
-        echo str_pad(
-            "$" . number_format($empleado["comision"], 0, ',', '.'),
-            18
-        );
-
-        echo str_pad(
-            "$" . number_format($empleado["bono"], 0, ',', '.'),
-            15
-        );
-
+        echo str_pad($empleado["citas"],10);
+        echo str_pad("$" . number_format($empleado["facturado"], 0, ',', '.'),18);
+        echo str_pad("$" . number_format($empleado["comision"], 0, ',', '.'),18);
+        echo str_pad("$" . number_format($empleado["bono"], 0, ',', '.'),15);
         echo "$" . number_format($total_pago, 0, ',', '.') . "\n";
     }
-
     echo str_repeat("-", 95) . "\n";
 }
+function cargar_datos_prueba(array &$empleados, array $servicios): void
+{
+    $empleados = [
+        [
+            "nombre" => "Juan Camilo",
+            "especialidad" => "Limpieza facial, Pedicure",
+            "citas" => []
+        ],
+        [
+            "nombre" => "Meisil",
+            "especialidad" => "Masaje relajante, Manicure",
+            "citas" => []
+        ],
+        [
+            "nombre" => "Carolina",
+            "especialidad" => "Exfoliación corporal, Masaje descontracturante",
+            "citas" => []
+        ],
+        [
+            "nombre" => "Evelyn",
+            "especialidad" => "Tratamiento antiedad",
+            "citas" => []
+        ]
+    ];
 
+    // CITAS DE JUAN CAMILO
+    $empleados[0]["citas"][] = [ // Cita de prueba 1 
+        "cliente" => "Anabell",
+        "dia" => "lunes",
+        "hora" => 8,
+        "servicios" => [
+            $servicios[0],
+            $servicios[1]
+        ]
+    ];
+    $empleados[0]["citas"][] = [ // Cita de prueba 2
+        "cliente" => "Yendris",
+        "dia" => "lunes",
+        "hora" => 9,
+        "servicios" => [
+            $servicios[2]
+        ]
+    ];
+
+    $empleados[0]["citas"][] = [
+        "cliente" => "Yailys",
+        "dia" => "martes",
+        "hora" => 10,
+        "servicios" => [
+            $servicios[1]
+        ]
+    ];
+
+    $empleados[0]["citas"][] = [
+        "cliente" => "Carlos",
+        "dia" => "miércoles",
+        "hora" => 14,
+        "servicios" => [
+            $servicios[0],
+            $servicios[2]
+        ]
+    ];
+    // CITAS DE MEISIl
+    $empleados[1]["citas"][] = [
+        "cliente" => "Andres",
+        "dia" => "lunes",
+        "hora" => 11,
+        "servicios" => [
+            $servicios[3],
+            $servicios[1]
+        ]
+    ];
+
+    $empleados[1]["citas"][] = [
+        "cliente" => "Dimitry",
+        "dia" => "martes",
+        "hora" => 8,
+        "servicios" => [
+            $servicios[1]
+        ]
+    ];
+
+    $empleados[1]["citas"][] = [
+        "cliente" => "Alexander",
+        "dia" => "jueves",
+        "hora" => 10,
+        "servicios" => [
+            $servicios[3]
+        ]
+    ];
+
+    $empleados[1]["citas"][] = [
+        "cliente" => "Morgan",
+        "dia" => "viernes",
+        "hora" => 15,
+        "servicios" => [
+            $servicios[1],
+            $servicios[2]
+        ]
+    ];
+    // CITAS DE CAROLINA
+    $empleados[2]["citas"][] = [
+        "cliente" => "Valentina",
+        "dia" => "lunes",
+        "hora" => 14,
+        "servicios" => [
+            $servicios[5]
+        ]
+    ];
+    $empleados[2]["citas"][] = [
+        "cliente" => "Daniel",
+        "dia" => "martes",
+        "hora" => 13,
+        "servicios" => [
+            $servicios[4],
+            $servicios[5]
+        ]
+    ];
+    $empleados[2]["citas"][] = [
+        "cliente" => "Sofia",
+        "dia" => "jueves",
+        "hora" => 9,
+        "servicios" => [
+            $servicios[5]
+        ]
+    ];
+    $empleados[2]["citas"][] = [
+        "cliente" => "Mateo",
+        "dia" => "sábado",
+        "hora" => 10,
+        "servicios" => [
+            $servicios[4]
+        ]
+    ];
+    // CITAS DE EVELYN
+    $empleados[3]["citas"][] = [
+        "cliente" => "Natalia",
+        "dia" => "martes",
+        "hora" => 16,
+        "servicios" => [
+            $servicios[6]
+        ]
+    ];
+
+    $empleados[3]["citas"][] = [
+        "cliente" => "Jorge",
+        "dia" => "viernes",
+        "hora" => 9,
+        "servicios" => [
+            $servicios[6],
+            $servicios[1]
+        ]
+    ];
+
+    $empleados[3]["citas"][] = [
+        "cliente" => "Mariana",
+        "dia" => "sábado",
+        "hora" => 14,
+        "servicios" => [
+            $servicios[0]
+        ]
+    ];
+    echo "\n";
+    echo "=============================================\n";
+    echo "DATOS DE PRUEBA CARGADOS\n";
+    echo "4 empleados registrados.\n";
+    echo "15 citas registradas.\n";
+    echo "Los datos fueron cargados correctamente.\n";
+    echo "=============================================\n";
+}
 $programa_activo = true;
 while ($programa_activo) {
 
@@ -719,21 +749,34 @@ while ($programa_activo) {
     switch ($opcion_menu) {
 
         case "1":
+
+            if ($datos_prueba_cargados) {
+                echo "\n";
+                echo "La opción 1 no está disponible porque los datos de prueba ya fueron cargados.\n";
+                break;
+            }
             registrar_empleados($empleados);
             break;
 
         case "2":
+
+            if ($datos_prueba_cargados) {
+                echo "\n";
+                echo "La opción 2 no está disponible porque los datos de prueba ya fueron cargados.\n";
+                break;
+            }
             registrar_cita($empleados, $servicios);
             break;
 
         case "3":
- 
+
             total_facturado_empleados($empleados);
             echo "\nPresione ENTER para continuar...";
             fgets(STDIN);
             break;
 
         case "4":
+
             servicio_mas_solicitado($empleados);
             echo "\nPresione ENTER para continuar...";
             fgets(STDIN);
@@ -741,7 +784,6 @@ while ($programa_activo) {
 
         case "5":
 
-            echo "Agenda de un dia\n";
             agenda_de_un_dia($empleados);
             echo "\nPresione ENTER para continuar...";
             fgets(STDIN);
@@ -756,7 +798,6 @@ while ($programa_activo) {
 
         case "7":
 
-            echo "Liquidacion de comisiones\n";
             liquidacion_comisiones($empleados);
             echo "\nPresione ENTER para continuar...";
             fgets(STDIN);
@@ -764,15 +805,23 @@ while ($programa_activo) {
 
         case "8":
 
-            echo "\n";
             echo "Gracias por utilizar el sistema ADSO-SPA.\n";
             $programa_activo = false;
             break;
 
         case "dp":
 
-            echo "\n";
-            echo "Opcion de datos de prueba seleccionada.\n";
+            if ($datos_prueba_cargados) {
+
+                echo "Los datos de prueba ya han sido cargados.\n";
+                break;
+            }
+            cargar_datos_prueba($empleados, $servicios);
+            $datos_prueba_cargados = true;
+            break;
+        default:
+
+            echo "Opción inválida. Intente nuevamente.\n";
             break;
     }
 }
